@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+
 class Binance:
     def __init__(self):
         self._exchange = ccxt.binance({
@@ -19,11 +20,11 @@ class Binance:
         all_candles = []
         current_timestamp = start_timestamp
 
-        while current_timestamp < end_timestamp:
+        while current_timestamp <= end_timestamp:
             try:
                 candles = self._exchange.fetch_ohlcv(
                     symbol=symbol,
-                    timeframe = timeframe,
+                    timeframe=timeframe,
                     since=current_timestamp,
                     limit=1000
                 )
@@ -50,5 +51,5 @@ class Binance:
 # тест
 binance = Binance()
 end_date = datetime.now()
-start_date = end_date - relativedelta(months=1)
+start_date = end_date - relativedelta(months=12)
 print(binance.fetch_ohlcv_data("ETHUSDT", '1d', start_date, end_date))
