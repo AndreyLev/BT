@@ -1,6 +1,8 @@
 from app.models.backtesting.engine import DataSource, Strategy
 
-class BTEngineProcessor:
+class BTProcessor:
+    # данные будут из postgres
+
     # добавить источник данных
     # добавить стратегию
     # базовая мысль следующая:

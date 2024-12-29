@@ -2,7 +2,7 @@ from functools import cmp_to_key
 
 from app.models.spot.spot_order import LimitOrder
 from app.models.spot.account import Account
-from app.services.spot.limit_order_processor import LimitOrderProcessor
+from app.services.broker.spot.limit_order_processor import LimitOrderProcessor
 
 def bids_comparator(o1, o2):
     if o1.limit_price == o2.limit_price:
