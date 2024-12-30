@@ -1,10 +1,12 @@
 from dataclasses import dataclass, field
 from itertools import count
+from app.models.spot.account import Account
 
 id_counter = count(1)
 
 @dataclass
 class Order:
+    acc: Account
     status: str
     id: int = field(default_factory=lambda: next(id_counter))
 

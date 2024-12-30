@@ -1,23 +1,23 @@
 from app.database.models.datasource import DataSource
 from app.models.backtesting.strategy import Strategy
+from app.services.broker.spot.service import SpotService
+from app.api.spot_api import SpotAPI
+from app.models.spot.account import Account
 
 class BTProcessor:
-    # добавить источник данных
-    # добавить стратегию
-    # базовая мысль следующая:
-    # источник данных выдает словарь со свечами
-    # в стратегии добавляются необходимые индикаторы
-    # далее происходят вычисления на каждой свече
-    # агент собирает статистику
-
-    # источниками данных могут быть
-    # postgres sql, exchanges(напр. binance, bybit и т.д.)
-    # csv, txt
-    # datasource это singleton, который один раз считывает данных
-    # и возвращает их в виде словаря со значениями ohlcv
-    def __init__(self, datasource: DataSource, strategy: Strategy):
+    def __init__(self, datasource: DataSource, strategy: Strategy, initial_balance: float = 0.0, market_type: str = 'SPOT'):
         self._datasource = datasource
-        self._strategy = strategy
+        self._strategy: Strategy = strategy
+        self._api = None
+        if initial_balance == 0.0:
+            initial_balance = 10000.0
+        if market_type == "SPOT":
+            account = Account(quote_balance=initial_balance)
+            service = SpotService(account=account)
+            self._api = SpotAPI(service)
+        elif market_type == "FUTURES":
+            self._api = None
+        self._strategy.__bind__api__(self._api)
 
     def __calculate_dynamic_candles__(self, data: dict) -> list:
         DynamicCandle = type('DynamicCandle', (object,), {})
@@ -41,8 +41,9 @@ class BTProcessor:
         ohlcv_data = self._datasource.get_ohlcv_data()
         self._strategy.__bind_data__(ohlcv_data)
         self._strategy.__prepare_data__()
-        candles = self.__calculate_dynamic_candles__()
+        candles = self.__calculate_dynamic_candles__(ohlcv_data)
         for candle_index in range(len(candles)):
             candle = candles[candle_index]
+            print(candle.close)
             # прибытие новой свечи
             # разослать подписчикам

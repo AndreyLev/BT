@@ -1,8 +1,6 @@
 from functools import cmp_to_key
 
 from app.models.spot.spot_order import LimitOrder
-from app.models.spot.account import Account
-from app.services.broker.spot.limit_order_processor import LimitOrderProcessor
 
 def bids_comparator(o1, o2):
     if o1.limit_price == o2.limit_price:
@@ -15,9 +13,8 @@ def asks_comparator(o1, o2):
     return o1.limit_price - o2.limit_price
 
 class OrderBook:
-    def __init__(self, limit_order_processor: LimitOrderProcessor, account: Account):
+    def __init__(self, limit_order_processor):
         self._processor = limit_order_processor
-        self._account = account
         self._bids = []
         self._asks = []
 
@@ -35,8 +32,8 @@ class OrderBook:
         # по asks из начала в конец
         for bid in self._bids[::-1]:
             if bar.close < bid.limit_price:
-                self._processor.execute_order(bid, self._account)
+                self._processor.execute_order(bid)
 
         for ask in self._asks:
             if bar.close > ask.limit_price:
-                self._processor.execute_order(ask, self._account)
+                self._processor.execute_order(ask)

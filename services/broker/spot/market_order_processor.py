@@ -3,7 +3,8 @@ from app.models.spot.account import Account
 
 
 class MarketOrderProcessor:
-    def has_sufficient_funds(self, order: MarketOrder, account: Account) -> bool:
+    def has_sufficient_funds(self, order: MarketOrder) -> bool:
+        account : Account = order.account
         if order.direction == "BUY":
             if account.quote_balance < order.quantity:
                 return False
@@ -12,15 +13,18 @@ class MarketOrderProcessor:
                 return False
         return True
 
-    def validate_order(self, order: MarketOrder, account: Account):
+    def validate_order(self, order: MarketOrder):
+        account : Account = order.account
         if self.has_sufficient_funds(order, account):
             raise ValueError("Недостаточно средств для выполнения ордера")
 
-    def process_order(self, order: MarketOrder, account: Account):
+    def process_order(self, order: MarketOrder):
+        account : Account = order.account
         self.validate_order(order, account)
         self.execute_order(order, account)
 
-    def calculate_fee(self, order: MarketOrder, account: Account):
+    def calculate_fee(self, order: MarketOrder):
+        account : Account = order.account
         if order.direction == "BUY":
             order.quote_fee = order.quantity * account.taker_fee
         elif order.direction == "SELL":
@@ -38,7 +42,8 @@ class MarketOrderProcessor:
         order.base_balance_change = base_change
         order.quote_balance_change = quote_change
 
-    def update_user_balance(self, order: MarketOrder, account: Account):
+    def update_user_balance(self, order: MarketOrder):
+        account : Account = order.account
         if order.direction == "BUY":
             account.base_balance += order.base_balance_change
             account.quote_balance -= order.quote_balance_change
@@ -46,7 +51,8 @@ class MarketOrderProcessor:
             account.base_balance -= order.base_balance_change
             account.quote_balance += order.quote_balance_change
 
-    def execute_order(self, order: MarketOrder, account: Account):
+    def execute_order(self, order: MarketOrder):
+        account : Account = order.account
         # исполнение ордера по текущей рыночной цене
         # todo: написать получение текущей цены
         curr_price = None
